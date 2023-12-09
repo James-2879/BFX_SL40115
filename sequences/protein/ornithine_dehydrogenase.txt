@@ -1,0 +1,71 @@
+>AFI26510.1 ornithine decarboxylase, partial [Artamella viridis]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGV
+
+>AFI26513.1 ornithine decarboxylase, partial [Calicalicus madagascariensis]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGV
+
+>AFI26514.1 ornithine decarboxylase, partial [Calicalicus rufocarpalis]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26516.1 ornithine decarboxylase, partial [Cyanolanius madagascarinus]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26517.1 ornithine decarboxylase, partial [Euryceros prevostii]
+RAKELDLAIVGVSFHVGSGCTXPETFVQAIXXXXXXXXMGV
+
+>AFI26518.1 ornithine decarboxylase, partial [Falculea palliata]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26519.1 ornithine decarboxylase, partial [Hypositta corallirostris]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26520.1 ornithine decarboxylase, partial [Leptopterus chabert]
+RAKELDLAVVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFD94611.1 ornithine decarboxylase, partial [Megabyas flammulatus]
+KFGATLKTSRLLLERAKELDLAIVGV
+
+>AFI26527.1 ornithine decarboxylase, partial [Newtonia amphichroa]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGV
+
+>AFI26525.1 ornithine decarboxylase, partial [Newtonia archboldi]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26529.1 ornithine decarboxylase, partial [Oriolia bernieri]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26533.1 ornithine decarboxylase, partial [Tylas eduardi]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGV
+
+>AFD94607.1 ornithine decarboxylase, partial [Vanga curvirostris]
+KFGATLKTSRLLLERAKELDLAIVGV
+
+>AFI26537.1 ornithine decarboxylase, partial [Xenopirostris damii]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26535.1 ornithine decarboxylase, partial [Xenopirostris polleni]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>AFI26538.1 ornithine decarboxylase, partial [Xenopirostris xenopirostris]
+RAKELDLAIVGVSFHVGSGCTDPETFVQAIXXXXXXXXMGV
+
+>ADW41651.1 ornithine decarboxylase, partial [Bernieria madagascariensis inceleber]
+KFGATLKTSRLLLERAKELDLAXVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
+
+>ADY16992.1 ornithine decarboxylase, partial [Crossleyia xanthophrys]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
+
+>ADY16991.1 ornithine decarboxylase, partial [Cryptosylvicola randrianasoloi]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
+
+>ADY16990.1 ornithine decarboxylase, partial [Hartertula flavoviridis]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFSMYLLD
+
+>ACG69428.1 ornithine decarboxylase, partial [Thamnornis chloropetoides]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
+
+>ADY16988.1 ornithine decarboxylase, partial [Xanthomixis apperti]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
+
+>ACG69431.1 ornithine decarboxylase, partial [Xanthomixis tenebrosus]
+KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
