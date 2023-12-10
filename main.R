@@ -1,6 +1,7 @@
 library(tidyverse)
 library(msa) # for sequence alignment
 library(ape) # for neighbor joining
+library(phangorn) # for MP, ML, Boostrapping
 
 setwd("/home/james/Documents/phylogenetics")
 
@@ -24,12 +25,14 @@ nadh_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/prote
 cyt_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/protein/cyt_b.txt")
 orn_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/protein/ornithine_dehydrogenase.txt")
 
-# make names ncier for phylogram
+outgroups <- c("Malurus cyaneus", "Climacteris rufus", "Epthianura aurifrons") # in complete
+
+# make names nicer for phylogram
 nadh_seqs@ranges@NAMES <- clean_names(nadh_seqs@ranges@NAMES)
 cyt_seqs@ranges@NAMES <- clean_names(cyt_seqs@ranges@NAMES)
 orn_seqs@ranges@NAMES <- clean_names(orn_seqs@ranges@NAMES)
 
-align_and_tree <- function(sequences, rooted, branch_lengths) {
+align_and_tree <- function(sequences, protein, rooted, branch_lengths) {
   
   alignment <- msa(sequences)
   alignment <- msaConvert(alignment, type="seqinr::alignment")
@@ -50,36 +53,119 @@ align_and_tree <- function(sequences, rooted, branch_lengths) {
   
   tree <- nj(distance_matrix)
   
-  ## agh need outgroups
-  
   if (!rooted & !branch_lengths) {
-  plot.phylo(tree, main="Phylogenetic Tree",
-             type = "unrooted",
-             use.edge.length = F)
-  mtext(text = "UNrooted, no branch lengths")
+    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_unrooted_unbranched.png"), width = 3600, height = 3600, res = 150)
+    plot.phylo(tree, main="Phylogenetic Tree",
+               type = "unrooted",
+               use.edge.length = F)
+    mtext(text = "UNrooted, no branch lengths")
   } else if (!rooted & branch_lengths) {
+    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_unrooted_branched.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree",
                type = "unrooted",
                use.edge.length = T)
     mtext(text = "UNrooted, with branch lengths")
   } else if (rooted & !branch_lengths) {
-  plot.phylo(tree, main="Phylogenetic Tree",
-             use.edge.length = F)
-  mtext(text = "Rooted, no branch lenths")
+    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_rooted_unbranched.png"), width = 3600, height = 3600, res = 150)
+    plot.phylo(tree, main="Phylogenetic Tree",
+               use.edge.length = F)
+    mtext(text = "Rooted, no branch lengths")
   } else if (rooted & branch_lengths) {
-  plot.phylo(tree, main="Phylogenetic Tree", 
-             use.edge.length = T)
-  mtext(text = "Rooted, with branch lenths")
+    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_rooted_branched.png"), width = 3600, height = 3600, res = 150)
+    plot.phylo(tree, main="Phylogenetic Tree", 
+               use.edge.length = T)
+    mtext(text = "Rooted, with branch lengths")
   }
+  dev.off()
+  return(tree)
 }
 
-align_and_tree(sequences = cyt_seqs,
-               rooted = TRUE,
-               branch_lengths = TRUE)
+returned_tree <- align_and_tree(sequences = nadh_seqs,
+                                protein = "NADH",
+                                rooted = FALSE,
+                                branch_lengths = FALSE)
+
+### Maximum parsimony
+
+alignment <- msa(orn_seqs)
+phydat_obj <- as.phyDat(alignment)
+tree_nj <- nj(dist.hamming(phydat_obj))
+
+parsimony(tree_nj, phydat_obj) # check parsimony
+best_tree <- optim.parsimony(tree_nj, phydat_obj) # optimize tree
+parsimony(best_tree, phydat_obj) # check parsimony again
+
+phylo_plot <- plot.phylo(best_tree, main="Phylogenetic Tree", # plot the tree as before
+           use.edge.length = T)
+mtext(text = "Rooted, branch lengths")
+
+### Boostrapping
+
+set.seed(123)
+NJtrees <- bootstrap.phyDat(phydat_obj,
+                            FUN=function(x)NJ(dist.hamming(x)), bs=100)
+treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
+
+# Maximum parsimony
+treeMP <- pratchet(phydat_obj)
+treeMP <- acctran(treeMP, phydat_obj)
+set.seed(123)
+BStrees <- bootstrap.phyDat(phydat_obj, pratchet, bs = 500, multicore = TRUE)
+treeMP <- plotBS(treeMP, BStrees, "phylogram")
+add.scale.bar()
+
+# Examine the bootstrap support values on the branches of your phylogenetic tree. Support values indicate the proportion of bootstrap replicates that support a particular branch. Higher values (e.g., 70% or above) are generally considered more reliable.
+
+### Looking at multiple protein sequences
+# Can concatenate protein sequences BUT this is less good if they have different rates of evolution
+
+### Creating a super alignment with phangorn (consensus tree)
+
+alignment_nadh <- msa(nadh_seqs)
+alignment_nadh_phydat <- as.phyDat(alignment_nadh)
+
+alignment_cyt <- msa(cyt_seqs)
+alignment_cyt_phydat <- as.phyDat(alignment_cyt)
+
+concatenated_alignment <- cbind(alignment_nadh_phydat, alignment_cyt_phydat)
+
+tree_nj <- nj(dist.hamming(concatenated_alignment))
+
+parsimony(tree_nj, concatenated_alignment) # check parsimony
+best_tree <- optim.parsimony(tree_nj, concatenated_alignment) # optimize tree
+parsimony(best_tree, concatenated_alignment) # check parsimony again
+
+phylo_plot <- plot.phylo(best_tree, main="Phylogenetic Tree", # plot the tree as before
+                         use.edge.length = T)
+mtext(text = "Rooted, branch lengths")
+
+### Bootstrapping (again)
+
+set.seed(123)
+NJtrees <- bootstrap.phyDat(concatenated_alignment,
+                            FUN=function(x)NJ(dist.hamming(x)), bs=100)
+treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
+
+# Maximum parsimony
+treeMP <- pratchet(concatenated_alignment)
+treeMP <- acctran(treeMP, concatenated_alignment)
+set.seed(123)
+BStrees <- bootstrap.phyDat(concatenated_alignment, pratchet, bs = 500, multicore = TRUE)
+treeMP <- plotBS(treeMP, BStrees, "phylogram")
+add.scale.bar()
 
 
 
 
+
+### Next steps -----------------------------------------------------------------
+
+# Do I need to do a nucleotide alignment to complement the protein alignment?
+#  -- If I do one, should it just be for ornithine as the sequence is much shorter
+# Are the outgroups far enough out?
+# I would expect the outgroups to be more ancestral thant the two main families?
+
+# maybe look into different subsitution matrices also
 
 
 
