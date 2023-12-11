@@ -2,12 +2,14 @@ library(tidyverse)
 library(msa) # for sequence alignment
 library(ape) # for neighbor joining
 library(phangorn) # for MP, ML, Boostrapping
+library(Biostrings)
+library(seqinr)
 
-setwd("/home/james/Documents/phylogenetics")
+setwd("/home/james/Documents/BFX_SL40115")
 
 ### Functions ------------------------------------------------------------------
 
-clean_names <- function(vector_obj) {
+clean_aa_names <- function(vector_obj) {
   names <- vector_obj
   new_names <- c()
   for (x in 1:length(names)) {
@@ -19,140 +21,159 @@ clean_names <- function(vector_obj) {
   return(new_names)
 }
 
-## Script ----------------------------------------------------------------------
+clean_dna_names <- function(vector_obj) {
+  names <- vector_obj
+  new_names <- c()
+  for (x in 1:length(names)) {
+    genus <- str_split(names, " ")[[x]][2]
+    species <- str_split(names, " ")[[x]][3]
+    string <- paste(genus, species)
+    print(string)
+    new_names <- c(new_names, string)
+  }
+  return(new_names)
+}
 
-nadh_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/protein/nadh_dehydrogenase.txt")
-cyt_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/protein/cyt_b.txt")
-orn_seqs <-readAAStringSet("/home/james/Documents/phylogenetics/sequences/protein/ornithine_dehydrogenase.txt")
+accessions <- function(vector_obj) {
+  names <- vector_obj
+  new_names <- c()
+  for (x in 1:length(names)) {
+    string <- str_split(names, " ")[[x]][1]
+    # string <- sub("]", "", string)
+    print(string)
+    new_names <- c(new_names, string)
+  }
+  return(new_names)
+}
 
-outgroups <- c("Malurus cyaneus", "Climacteris rufus", "Epthianura aurifrons") # in complete
-
-# make names nicer for phylogram
-nadh_seqs@ranges@NAMES <- clean_names(nadh_seqs@ranges@NAMES)
-cyt_seqs@ranges@NAMES <- clean_names(cyt_seqs@ranges@NAMES)
-orn_seqs@ranges@NAMES <- clean_names(orn_seqs@ranges@NAMES)
-
-align_and_tree <- function(sequences, protein, rooted, branch_lengths) {
+make_nj_tree <- function(alignment, protein, branch_lengths) {
   
-  alignment <- msa(sequences)
   alignment <- msaConvert(alignment, type="seqinr::alignment")
-  
-  ### Printing the alignment -----------------------------------------------------
-  # print(nadh_alignment, show="complete")
-  
-  # msaPrettyPrint(myFirstAlignment, output="pdf", showNames="none",
-  #                showLogo="none", askForOverwrite=FALSE, verbose=FALSE)
-  # 
-  # msaPrettyPrint(myFirstAlignment, y=c(164, 213), output="asis",
-  #                showNames="none", showLogo="none", askForOverwrite=FALSE)
-  
-  ### Making trees ---------------------------------------------------------------
-  
   distance_matrix <- seqinr::dist.alignment(alignment, 
                                             matrix = "identity")
-  
   tree <- nj(distance_matrix)
   
-  if (!rooted & !branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_unrooted_unbranched.png"), width = 3600, height = 3600, res = 150)
-    plot.phylo(tree, main="Phylogenetic Tree",
-               type = "unrooted",
-               use.edge.length = F)
-    mtext(text = "UNrooted, no branch lengths")
-  } else if (!rooted & branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_unrooted_branched.png"), width = 3600, height = 3600, res = 150)
-    plot.phylo(tree, main="Phylogenetic Tree",
-               type = "unrooted",
-               use.edge.length = T)
-    mtext(text = "UNrooted, with branch lengths")
-  } else if (rooted & !branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_rooted_unbranched.png"), width = 3600, height = 3600, res = 150)
+  if (!branch_lengths) {
+    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_no_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree",
                use.edge.length = F)
     mtext(text = "Rooted, no branch lengths")
-  } else if (rooted & branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/phylogenetics/output/{protein}_phy_rooted_branched.png"), width = 3600, height = 3600, res = 150)
+  } else if (branch_lengths) {
+    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree", 
                use.edge.length = T)
     mtext(text = "Rooted, with branch lengths")
   }
   dev.off()
-  return(tree)
 }
 
-returned_tree <- align_and_tree(sequences = nadh_seqs,
-                                protein = "NADH",
-                                rooted = FALSE,
-                                branch_lengths = FALSE)
+make_mp_tree <- function(alignment, protein, branch_lengths) {
+  
+  phydat_obj <- as.phyDat(alignment)
+  tree_nj <- nj(dist.hamming(phydat_obj))
+  
+  parsimony(tree_nj, phydat_obj) # check parsimony
+  best_tree <- optim.parsimony(tree_nj, phydat_obj) # optimize tree
+  parsimony(best_tree, phydat_obj) # check parsimony again
+  
+  if (!branch_lengths) {
+    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_no_lengths.png"), width = 3600, height = 3600, res = 150)
+    plot.phylo(best_tree, main="Phylogenetic Tree",
+               use.edge.length = F)
+    mtext(text = "Rooted, no branch lengths")
+  } else if (branch_lengths) {
+    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_lengths.png"), width = 3600, height = 3600, res = 150)
+    plot.phylo(best_tree, main="Phylogenetic Tree", 
+               use.edge.length = T)
+    mtext(text = "Rooted, with branch lengths")
+  }
+  dev.off()
+}
 
-### Maximum parsimony
+do_nj_bootstrap <- function(alignment, protein, branch_lengths, replicates) {
+  set.seed(123)
+  phydat_obj <- as.phyDat(alignment)
+  NJtrees <- bootstrap.phyDat(phydat_obj,
+                              FUN=function(x)NJ(dist.hamming(x)), bs=replicates)
+  # treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
+  
+  png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_boostrap.png"), width = 3600, height = 3600, res = 150)
+  plotBS(tree_nj, NJtrees, "phylogram")
+  dev.off()
+}
 
-alignment <- msa(orn_seqs)
-phydat_obj <- as.phyDat(alignment)
-tree_nj <- nj(dist.hamming(phydat_obj))
+do_mp_boostrap <- function(alignment, protein, branch_lengths, replicates) {
+  set.seed(123)
+  phydat_obj <- as.phyDat(alignment)
+  treeMP <- pratchet(phydat_obj)
+  treeMP <- acctran(treeMP, phydat_obj)
+  BStrees <- bootstrap.phyDat(phydat_obj, pratchet, bs = replicates, multicore = TRUE)
+  
+  png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_boostrap.png"), width = 3600, height = 3600, res = 150)
+  plotBS(treeMP, BStrees, "phylogram")
+  add.scale.bar()
+  dev.off()
+}
 
-parsimony(tree_nj, phydat_obj) # check parsimony
-best_tree <- optim.parsimony(tree_nj, phydat_obj) # optimize tree
-parsimony(best_tree, phydat_obj) # check parsimony again
+translate_dna_sequences <- function(sequences, protein) {
+  translated_sequences <- Biostrings::translate(sequences, if.fuzzy.codon = "X")
+  write.fasta(sequences = translated_sequences,
+              names = names(translated_nadh_dna_sequence),
+              file.out = str_glue("sequences/translated/{protein}.fasta")
+  )
+}
 
-phylo_plot <- plot.phylo(best_tree, main="Phylogenetic Tree", # plot the tree as before
-           use.edge.length = T)
-mtext(text = "Rooted, branch lengths")
+make_super_alignment <- function(alignments) {
+  phydat_alignments <- c()
+  for (alignment in alignments_list) {
+    converted_alignment <- as.phyDat(alignment)
+    phydat_alignments <- c(phydat_alignments, converted_alignment)
+  }
+  super_alignment <- do.call(cbind, phydat_alignments)
+  return(super_alignment)
+}
 
-### Boostrapping
+## Script ----------------------------------------------------------------------
 
-set.seed(123)
-NJtrees <- bootstrap.phyDat(phydat_obj,
-                            FUN=function(x)NJ(dist.hamming(x)), bs=100)
-treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
+# load amino acid sequences
+nadh_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/nadh_dehydrogenase.txt")
+cyt_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/cyt_b.txt")
+orn_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/ornithine_dehydrogenase.txt")
 
-# Maximum parsimony
-treeMP <- pratchet(phydat_obj)
-treeMP <- acctran(treeMP, phydat_obj)
-set.seed(123)
-BStrees <- bootstrap.phyDat(phydat_obj, pratchet, bs = 500, multicore = TRUE)
-treeMP <- plotBS(treeMP, BStrees, "phylogram")
-add.scale.bar()
+# load DNA sequences
+nadh_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/nadh_dehydrogenase.txt")
+cyt_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/cyt_b.txt")
+orn_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/ornithine_dehydrogenase.txt")
 
-# Examine the bootstrap support values on the branches of your phylogenetic tree. Support values indicate the proportion of bootstrap replicates that support a particular branch. Higher values (e.g., 70% or above) are generally considered more reliable.
+# list of outgroups
+outgroups <- c("Malurus cyaneus", "Climacteris rufus", "Epthianura aurifrons") # incomplete
 
-### Looking at multiple protein sequences
-# Can concatenate protein sequences BUT this is less good if they have different rates of evolution
+# cleap up names for phylogram
+nadh_aa_seqs@ranges@NAMES <- clean_aa_names(nadh_aa_seqs@ranges@NAMES)
+cyt_aa_seqs@ranges@NAMES <- clean_aa_names(cyt_aa_seqs@ranges@NAMES)
+orn_aa_seqs@ranges@NAMES <- clean_aa_names(orn_aa_seqs@ranges@NAMES)
 
-### Creating a super alignment with phangorn (consensus tree)
+nadh_dna_seqs@ranges@NAMES <- clean_dna_names(nadh_dna_seqs@ranges@NAMES)
+cyt_dna_seqs@ranges@NAMES <- clean_dna_names(cyt_dna_seqs@ranges@NAMES)
+orn_dna_seqs@ranges@NAMES <- clean_dna_names(orn_dna_seqs@ranges@NAMES)
 
-alignment_nadh <- msa(nadh_seqs)
-alignment_nadh_phydat <- as.phyDat(alignment_nadh)
 
-alignment_cyt <- msa(cyt_seqs)
-alignment_cyt_phydat <- as.phyDat(alignment_cyt)
+### User -------------------
+translate_dna_sequences(nadh_dna_seqs)
+readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/nadh_dehydrogenase.fasta", format = "fasta")
 
-concatenated_alignment <- cbind(alignment_nadh_phydat, alignment_cyt_phydat)
 
-tree_nj <- nj(dist.hamming(concatenated_alignment))
+alignment <- msa(nadh_dna_seqs)
+make_nj_tree(alignment = alignment,
+             protein = "NADH",
+             branch_lengths = FALSE)
 
-parsimony(tree_nj, concatenated_alignment) # check parsimony
-best_tree <- optim.parsimony(tree_nj, concatenated_alignment) # optimize tree
-parsimony(best_tree, concatenated_alignment) # check parsimony again
 
-phylo_plot <- plot.phylo(best_tree, main="Phylogenetic Tree", # plot the tree as before
-                         use.edge.length = T)
-mtext(text = "Rooted, branch lengths")
 
-### Bootstrapping (again)
 
-set.seed(123)
-NJtrees <- bootstrap.phyDat(concatenated_alignment,
-                            FUN=function(x)NJ(dist.hamming(x)), bs=100)
-treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
 
-# Maximum parsimony
-treeMP <- pratchet(concatenated_alignment)
-treeMP <- acctran(treeMP, concatenated_alignment)
-set.seed(123)
-BStrees <- bootstrap.phyDat(concatenated_alignment, pratchet, bs = 500, multicore = TRUE)
-treeMP <- plotBS(treeMP, BStrees, "phylogram")
-add.scale.bar()
+
+
 
 
 
@@ -160,19 +181,21 @@ add.scale.bar()
 
 ### Next steps -----------------------------------------------------------------
 
-# Do I need to do a nucleotide alignment to complement the protein alignment?
-#  -- If I do one, should it just be for ornithine as the sequence is much shorter
-# Are the outgroups far enough out?
-# I would expect the outgroups to be more ancestral thant the two main families?
-
 # maybe look into different subsitution matrices also
+# Examine the bootstrap support values on the branches of your phylogenetic tree. Support values indicate the proportion of bootstrap replicates that support a particular branch. Higher values (e.g., 70% or above) are generally considered more reliable.
+
+# Can concatenate protein sequences BUT this is less good if they have different rates of evolution
+
+####
 
 
+### Printing the alignment -----------------------------------------------------
+# print(nadh_alignment, show="complete")
 
-
-
-
-
-
+# msaPrettyPrint(myFirstAlignment, output="pdf", showNames="none",
+#                showLogo="none", askForOverwrite=FALSE, verbose=FALSE)
+# 
+# msaPrettyPrint(myFirstAlignment, y=c(164, 213), output="asis",
+#                showNames="none", showLogo="none", askForOverwrite=FALSE)
 
 
