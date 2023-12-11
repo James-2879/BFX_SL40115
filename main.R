@@ -54,12 +54,12 @@ make_nj_tree <- function(alignment, protein, branch_lengths) {
   tree <- nj(distance_matrix)
   
   if (!branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_no_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_nj_no_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree",
                use.edge.length = F)
     mtext(text = "Rooted, no branch lengths")
   } else if (branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_nj_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree", 
                use.edge.length = T)
     mtext(text = "Rooted, with branch lengths")
@@ -77,12 +77,12 @@ make_mp_tree <- function(alignment, protein, branch_lengths) {
   parsimony(best_tree, phydat_obj) # check parsimony again
   
   if (!branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_no_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_mp_no_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(best_tree, main="Phylogenetic Tree",
                use.edge.length = F)
     mtext(text = "Rooted, no branch lengths")
   } else if (branch_lengths) {
-    png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_mp_lengths.png"), width = 3600, height = 3600, res = 150)
     plot.phylo(best_tree, main="Phylogenetic Tree", 
                use.edge.length = T)
     mtext(text = "Rooted, with branch lengths")
@@ -97,7 +97,7 @@ do_nj_bootstrap <- function(alignment, protein, branch_lengths, replicates) {
                               FUN=function(x)NJ(dist.hamming(x)), bs=replicates)
   # treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
   
-  png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_nj_boostrap.png"), width = 3600, height = 3600, res = 150)
+  png(filename = str_glue("output/{protein}_nj_boostrap.png"), width = 3600, height = 3600, res = 150)
   plotBS(tree_nj, NJtrees, "phylogram")
   dev.off()
 }
@@ -109,7 +109,7 @@ do_mp_boostrap <- function(alignment, protein, branch_lengths, replicates) {
   treeMP <- acctran(treeMP, phydat_obj)
   BStrees <- bootstrap.phyDat(phydat_obj, pratchet, bs = replicates, multicore = TRUE)
   
-  png(filename = str_glue("/home/james/Documents/BFX_SL40115/output/{protein}_mp_boostrap.png"), width = 3600, height = 3600, res = 150)
+  png(filename = str_glue("output/{protein}_mp_boostrap.png"), width = 3600, height = 3600, res = 150)
   plotBS(treeMP, BStrees, "phylogram")
   add.scale.bar()
   dev.off()
@@ -137,14 +137,14 @@ make_super_alignment <- function(alignments) {
 ## Script ----------------------------------------------------------------------
 
 # load amino acid sequences
-nadh_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/nadh_dehydrogenase.txt")
-cyt_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/cyt_b.txt")
-orn_aa_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/protein/ornithine_dehydrogenase.txt")
+nadh_aa_seqs <-readAAStringSet("sequences/protein/nadh_dehydrogenase.txt")
+cyt_aa_seqs <-readAAStringSet("sequences/protein/cyt_b.txt")
+orn_aa_seqs <-readAAStringSet("sequences/protein/ornithine_dehydrogenase.txt")
 
 # load DNA sequences
-nadh_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/nadh_dehydrogenase.txt")
-cyt_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/cyt_b.txt")
-orn_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/ornithine_dehydrogenase.txt")
+nadh_dna_seqs <-readDNAStringSet("sequences/gene/nadh_dehydrogenase.txt")
+cyt_dna_seqs <-readDNAStringSet("sequences/gene/cyt_b.txt")
+orn_dna_seqs <-readDNAStringSet("sequences/gene/ornithine_dehydrogenase.txt")
 
 # translate DNA sequences
 translate_dna_sequences(nadh_dna_seqs, protein = "nadh_dehydrogenase")
@@ -152,9 +152,9 @@ translate_dna_sequences(cyt_dna_seqs, protein = "cyt_b")
 translate_dna_sequences(orn_dna_seqs, protein = "ornithine_dehydrogenase")
 
 # load translated DNA sequences
-nadh_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/nadh_dehydrogenase.txt")
-cyt_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/cyt_b.txt")
-orn_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/ornithine_dehydrogenase.txt")
+nadh_translated_dna_seqs <-readAAStringSet("sequences/translated/nadh_dehydrogenase.txt")
+cyt_translated_dna_seqs <-readAAStringSet("sequences/translated/cyt_b.txt")
+orn_translated_dna_seqs <-readAAStringSet("sequences/translated/ornithine_dehydrogenase.txt")
 
 # list of outgroups
 outgroups <- c("Malurus cyaneus", "Climacteris rufus", "Epthianura aurifrons") # incomplete
