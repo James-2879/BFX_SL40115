@@ -117,10 +117,11 @@ do_mp_boostrap <- function(alignment, protein, branch_lengths, replicates) {
 
 translate_dna_sequences <- function(sequences, protein) {
   translated_sequences <- Biostrings::translate(sequences, if.fuzzy.codon = "X")
-  write.fasta(sequences = translated_sequences,
-              names = names(translated_nadh_dna_sequence),
-              file.out = str_glue("sequences/translated/{protein}.fasta")
-  )
+  con <- file(str_glue("sequences/translated/{protein}.txt"), "w")
+  for (i in seq_along(translated_sequences)) {
+    writeLines(c(paste0(">", names(translated_sequences)[i]), as.character(translated_sequences[i]), "\n"), con)
+  }
+  close(con)
 }
 
 make_super_alignment <- function(alignments) {
@@ -145,6 +146,16 @@ nadh_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/ge
 cyt_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/cyt_b.txt")
 orn_dna_seqs <-readDNAStringSet("/home/james/Documents/BFX_SL40115/sequences/gene/ornithine_dehydrogenase.txt")
 
+# translate DNA sequences
+translate_dna_sequences(nadh_dna_seqs, protein = "nadh_dehydrogenase")
+translate_dna_sequences(cyt_dna_seqs, protein = "cyt_b")
+translate_dna_sequences(orn_dna_seqs, protein = "ornithine_dehydrogenase")
+
+# load translated DNA sequences
+nadh_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/nadh_dehydrogenase.txt")
+cyt_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/cyt_b.txt")
+orn_translated_dna_seqs <-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/ornithine_dehydrogenase.txt")
+
 # list of outgroups
 outgroups <- c("Malurus cyaneus", "Climacteris rufus", "Epthianura aurifrons") # incomplete
 
@@ -157,13 +168,13 @@ nadh_dna_seqs@ranges@NAMES <- clean_dna_names(nadh_dna_seqs@ranges@NAMES)
 cyt_dna_seqs@ranges@NAMES <- clean_dna_names(cyt_dna_seqs@ranges@NAMES)
 orn_dna_seqs@ranges@NAMES <- clean_dna_names(orn_dna_seqs@ranges@NAMES)
 
+nadh_translated_dna_seqs@ranges@NAMES <- clean_dna_names(nadh_translated_dna_seqs@ranges@NAMES)
+cyt_translated_dna_seqs@ranges@NAMES <- clean_dna_names(cyt_translated_dna_seqs@ranges@NAMES)
+orn_translated_dna_seqs@ranges@NAMES <- clean_dna_names(orn_translated_dna_seqs@ranges@NAMES)
 
 ### User -------------------
-translate_dna_sequences(nadh_dna_seqs)
-readAAStringSet("/home/james/Documents/BFX_SL40115/sequences/translated/nadh_dehydrogenase.fasta", format = "fasta")
 
-
-alignment <- msa(nadh_dna_seqs)
+alignment <- msa(nadh_translated_dna_seqs)
 make_nj_tree(alignment = alignment,
              protein = "NADH",
              branch_lengths = FALSE)
