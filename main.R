@@ -54,12 +54,12 @@ make_nj_tree <- function(alignment, protein, branch_lengths) {
   tree <- nj(distance_matrix)
   
   if (!branch_lengths) {
-    png(filename = str_glue("output/{protein}_nj_no_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_nj_no_lengths.png"), width = 2400, height = 2400, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree",
                use.edge.length = F)
     mtext(text = "Rooted, no branch lengths")
   } else if (branch_lengths) {
-    png(filename = str_glue("output/{protein}_nj_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_nj_lengths.png"), width = 2400, height = 2400, res = 150)
     plot.phylo(tree, main="Phylogenetic Tree", 
                use.edge.length = T)
     mtext(text = "Rooted, with branch lengths")
@@ -77,12 +77,12 @@ make_mp_tree <- function(alignment, protein, branch_lengths) {
   parsimony(best_tree, phydat_obj) # check parsimony again
   
   if (!branch_lengths) {
-    png(filename = str_glue("output/{protein}_mp_no_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_mp_no_lengths.png"), width = 2400, height = 2400, res = 150)
     plot.phylo(best_tree, main="Phylogenetic Tree",
                use.edge.length = F)
     mtext(text = "Rooted, no branch lengths")
   } else if (branch_lengths) {
-    png(filename = str_glue("output/{protein}_mp_lengths.png"), width = 3600, height = 3600, res = 150)
+    png(filename = str_glue("output/{protein}_mp_lengths.png"), width = 2400, height = 2400, res = 150)
     plot.phylo(best_tree, main="Phylogenetic Tree", 
                use.edge.length = T)
     mtext(text = "Rooted, with branch lengths")
@@ -93,23 +93,24 @@ make_mp_tree <- function(alignment, protein, branch_lengths) {
 do_nj_bootstrap <- function(alignment, protein, branch_lengths, replicates) {
   set.seed(123)
   phydat_obj <- as.phyDat(alignment)
+  tree_nj <- nj(dist.hamming(phydat_obj))
   NJtrees <- bootstrap.phyDat(phydat_obj,
                               FUN=function(x)NJ(dist.hamming(x)), bs=replicates)
   # treeNJ <- plotBS(tree_nj, NJtrees, "phylogram")
   
-  png(filename = str_glue("output/{protein}_nj_boostrap.png"), width = 3600, height = 3600, res = 150)
+  png(filename = str_glue("output/{protein}_nj_boostrap.png"), width = 2400, height = 2400, res = 150)
   plotBS(tree_nj, NJtrees, "phylogram")
   dev.off()
 }
 
-do_mp_boostrap <- function(alignment, protein, branch_lengths, replicates) {
+do_mp_bootstrap <- function(alignment, protein, branch_lengths, replicates) {
   set.seed(123)
   phydat_obj <- as.phyDat(alignment)
   treeMP <- pratchet(phydat_obj)
   treeMP <- acctran(treeMP, phydat_obj)
   BStrees <- bootstrap.phyDat(phydat_obj, pratchet, bs = replicates, multicore = TRUE)
   
-  png(filename = str_glue("output/{protein}_mp_boostrap.png"), width = 3600, height = 3600, res = 150)
+  png(filename = str_glue("output/{protein}_mp_boostrap.png"), width = 2400, height = 2400, res = 150)
   plotBS(treeMP, BStrees, "phylogram")
   add.scale.bar()
   dev.off()
@@ -174,10 +175,82 @@ orn_translated_dna_seqs@ranges@NAMES <- clean_dna_names(orn_translated_dna_seqs@
 
 ### User -------------------
 
-alignment <- msa(nadh_translated_dna_seqs)
-make_nj_tree(alignment = alignment,
+# neighbor joining trees
+alignment <- msa(nadh_aa_seqs)
+do_nj_bootstrap(alignment = alignment,
              protein = "NADH",
-             branch_lengths = FALSE)
+             branch_lengths = TRUE,
+             replicate = 500)
+
+alignment <- msa(cyt_aa_seqs)
+do_nj_bootstrap(alignment = alignment,
+             protein = "Cytochrome_B",
+             branch_lengths = TRUE,
+             replicate = 500)
+
+alignment <- msa(orn_aa_seqs)
+do_nj_bootstrap(alignment = alignment,
+             protein = "Ornithine_decarboxylase",
+             branch_lengths = TRUE,
+             replicate = 500)
+
+# maximum parsimony trees
+alignment <- msa(nadh_aa_seqs)
+do_mp_bootstrap(alignment = alignment,
+             protein = "NADH",
+             branch_lengths = TRUE,
+             replicate = 500)
+
+alignment <- msa(cyt_aa_seqs)
+do_mp_bootstrap(alignment = alignment,
+             protein = "Cytochrome_B",
+             branch_lengths = TRUE,
+             replicate = 500)
+
+alignment <- msa(orn_aa_seqs)
+do_mp_bootstrap(alignment = alignment,
+             protein = "Ornithine_decarboxylase",
+             branch_lengths = TRUE,
+             replicate = 500)
+
+# neighbor joining trees
+alignment <- msa(nadh_translated_dna_seqs)
+do_nj_bootstrap(alignment = alignment,
+                protein = "NADH_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
+alignment <- msa(cyt_translated_dna_seqs)
+do_nj_bootstrap(alignment = alignment,
+                protein = "Cytochrome_B_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
+alignment <- msa(orn_translated_dna_seqs)
+do_nj_bootstrap(alignment = alignment,
+                protein = "Ornithine_decarboxylase_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
+# maximum parsimony trees
+alignment <- msa(nadh_translated_dna_seqs)
+do_mp_bootstrap(alignment = alignment,
+                protein = "NADH_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
+alignment <- msa(cyt_translated_dna_seqs)
+do_mp_bootstrap(alignment = alignment,
+                protein = "Cytochrome_B_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
+alignment <- msa(orn_translated_dna_seqs)
+do_mp_bootstrap(alignment = alignment,
+                protein = "Ornithine_decarboxylase_in_silico",
+                branch_lengths = TRUE,
+                replicate = 500)
+
 
 
 
