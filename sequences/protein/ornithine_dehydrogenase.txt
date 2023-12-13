@@ -70,11 +70,11 @@ KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
 >ACG69431.1 ornithine decarboxylase, partial [Xanthomixis tenebrosus]
 KFGATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFNMYLLD
 
->AET51357.1 ornithine decarboxylase, partial [Climacteris rufus (Outgroup)]
+>AET51357.1 ornithine decarboxylase, partial [Climacteris rufus]
 GATLKTSRLLLERAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMGAELGFSMY
 
->ABY85112.1 ornithine decarboxylase, partial [Coracina novaehollandiae (Outgroup)]
+>ABY85112.1 ornithine decarboxylase, partial [Coracina novaehollandiae]
 RAKELELAIVGVSFHVGSGCTDPETFVQAISDARCVFDMG
 
->ABY85125.1 ornithine decarboxylase, partial [Lalage leucomela (Outgroup)]
+>ABY85125.1 ornithine decarboxylase, partial [Lalage leucomela]
 RAKELDLAIVGVSFHVGSGCTDPETFVQAISDARCVFDMG
