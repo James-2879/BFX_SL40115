@@ -295,68 +295,7 @@ super_alignment <- make_super_alignment(c(msa(nadh_translated_dna_seqs), msa(cyt
 
 
 
-nadh_protein_df <- map_dfr(.x = nadh_aa_seq_names,
-              .f = function(x) {
-                org_string <- str_split(x, "\\[")[[1]][2]
-                org_string <- sub("]", "", org_string)
-                acc_string <- str_split(x, " ")[[1]][1]
-                vec <- data.frame(organism = org_string, nadh_protein_accession = acc_string)
-              })
 
-
-nadh_aa_seq_names <- nadh_aa_seqs@ranges@NAMES
-nadh_protein_df <- map_dfr(.x = nadh_aa_seq_names,
-                           .f = function(x) {
-                             org_string <- str_split(x, "\\[")[[1]][2]
-                             org_string <- sub("]", "", org_string)
-                             acc_string <- str_split(x, " ")[[1]][1]
-                             vec <- data.frame(organism = org_string, nadh_protein_accession = acc_string)
-                           })
-
-cyt_aa_seq_names <-  cyt_aa_seqs@ranges@NAMES
-cyt_protein_df <- map_dfr(.x = cyt_aa_seq_names,
-                           .f = function(x) {
-                             org_string <- str_split(x, "\\[")[[1]][2]
-                             org_string <- sub("]", "", org_string)
-                             acc_string <- str_split(x, " ")[[1]][1]
-                             vec <- data.frame(organism = org_string, cyt_protein_accession = acc_string)
-                           })
-
-orn_aa_seq_names <-  orn_aa_seqs@ranges@NAMES
-orn_protein_df <- map_dfr(.x = orn_aa_seq_names,
-                           .f = function(x) {
-                             org_string <- str_split(x, "\\[")[[1]][2]
-                             org_string <- sub("]", "", org_string)
-                             acc_string <- str_split(x, " ")[[1]][1]
-                             vec <- data.frame(organism = org_string, orn_protein_accession = acc_string)
-                           })
- 
-nadh_dna_seq_names <-  nadh_dna_seqs@ranges@NAMES
-nadh_dna_df <- map_dfr(.x = nadh_dna_seq_names,
-                           .f = function(x) {
-                             org_string <- str_split(x, "\\[")[[1]][2]
-                             org_string <- sub("]", "", org_string)
-                             acc_string <- str_split(x, " ")[[1]][1]
-                             vec <- data.frame(organism = org_string, nadh_dna_accession = acc_string)
-                           })
-
-cyt_dna_seq_names <-  cyt_dna_seqs@ranges@NAMES
-cyt_dna_df <- map_dfr(.x = cyt_dna_seq_names,
-                       .f = function(x) {
-                         org_string <- str_split(x, "\\[")[[1]][2]
-                         org_string <- sub("]", "", org_string)
-                         acc_string <- str_split(x, " ")[[1]][1]
-                         vec <- data.frame(organism = org_string, cyt_dna_accession = acc_string)
-                       })
-
-orn_dna_seq_names <-  orn_dna_seqs@ranges@NAMES
-orn_dna_df <- map_dfr(.x = orn_dna_seq_names,
-                       .f = function(x) {
-                         org_string <- str_split(x, "\\[")[[1]][2]
-                         org_string <- sub("]", "", org_string)
-                         acc_string <- str_split(x, " ")[[1]][1]
-                         vec <- data.frame(organism = org_string, orn_dna_accession = acc_string)
-                       })
 
 
 

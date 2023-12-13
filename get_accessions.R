@@ -100,6 +100,7 @@ accessions <- nadh_protein_df %>%
 remove(nadh_protein_df, cyt_protein_df, orn_protein_df,
        nadh_dna_df, cyt_dna_df, orn_dna_df)
 
+write_tsv(accessions, "sequences/accessions.tsv")
 
 
 
